@@ -515,16 +515,8 @@ trait WhiskWebActionsApi
                         }
                       }
                     } else {
-                      val allowedToProceed = if (context.method != OPTIONS) {
-                        confirmAuthenticated(action.annotations, context.headers, onBehalfOf).getOrElse(true)
-                      } else {
-                        // invoke the action for OPTIONS even if user is not authorized
-                        // so that action can respond to option request
-                        true
-                      }
-
                       extractEntityAndProcessRequest(
-                        allowedToProceed,
+                        confirmAuthenticated(action.annotations, context.headers, onBehalfOf).getOrElse(true),
                         actionOwnerIdentity,
                         action,
                         extension,

@@ -1697,7 +1697,7 @@ trait WebActionsApiBaseTests extends ControllerTestCommon with BeforeAndAfterEac
       }
     }
 
-    it should s"respond with custom options even when authentication is required but missing (auth? ${creds.isDefined})" in {
+    it should s"require an authenticated user for protected custom options (auth? ${creds.isDefined})" in {
       implicit val tid = transid()
 
       val entityName = MakeName.next("export")
@@ -1711,12 +1711,56 @@ trait WebActionsApiBaseTests extends ControllerTestCommon with BeforeAndAfterEac
       val path = action.fullyQualifiedName(false)
       put(entityStore, action)
 
-      invocationsAllowed += 1 // custom options means action is invoked
       actionResult =
         Some(JsObject("headers" -> JsObject("Access-Control-Allow-Methods" -> "OPTIONS, GET, PATCH".toJson)))
 
-      // the added headers should be ignored
+      if (creds.isDefined) {
+        invocationsAllowed += 1
+      }
+
       Options(s"$testRoutePath/$path") ~> Route.seal(routes(creds)) ~> check {
+        if (creds.isDefined) {
+          status should be(NoContent)
+          header("Access-Control-Allow-Origin") shouldBe empty
+          header("Access-Control-Allow-Methods").get.toString shouldBe "Access-Control-Allow-Methods: OPTIONS, GET, PATCH"
+          header("Access-Control-Request-Headers") shouldBe empty
+        } else {
+          status should be(Unauthorized)
+        }
+      }
+    }
+
+    it should s"require a valid authentication header for protected custom options (auth? ${creds.isDefined})" in {
+      implicit val tid = transid()
+
+      val entityName = MakeName.next("export")
+      val action =
+        stubAction(
+          proxyNamespace,
+          entityName,
+          customOptions = true,
+          requireAuthentication = true,
+          requireAuthenticationAsBoolean = false)
+      val path = action.fullyQualifiedName(false)
+      put(entityStore, action)
+
+      Options(s"$testRoutePath/$path") ~> Route.seal(routes(creds)) ~> check {
+        status should be(Unauthorized)
+      }
+
+      Options(s"$testRoutePath/$path") ~> addHeader(
+        WhiskAction.requireWhiskAuthHeader,
+        requireAuthenticationKey + "-bad") ~> Route.seal(routes(creds)) ~> check {
+        status should be(Unauthorized)
+      }
+
+      invocationsAllowed += 1
+      actionResult =
+        Some(JsObject("headers" -> JsObject("Access-Control-Allow-Methods" -> "OPTIONS, GET, PATCH".toJson)))
+
+      Options(s"$testRoutePath/$path") ~> addHeader(WhiskAction.requireWhiskAuthHeader, requireAuthenticationKey) ~> Route
+        .seal(routes(creds)) ~> check {
+        status should be(NoContent)
         header("Access-Control-Allow-Origin") shouldBe empty
         header("Access-Control-Allow-Methods").get.toString shouldBe "Access-Control-Allow-Methods: OPTIONS, GET, PATCH"
         header("Access-Control-Request-Headers") shouldBe empty
