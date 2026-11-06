@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM scala
+ARG BASE=scala
+FROM $BASE
 ARG OPENWHISK_JAR
 ENV DOCKER_VERSION=18.06.3-ce
 ENV WSK_VERSION=1.0.0

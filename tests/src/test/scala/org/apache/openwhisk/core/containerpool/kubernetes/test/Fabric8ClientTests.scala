@@ -20,7 +20,7 @@ package org.apache.openwhisk.core.containerpool.kubernetes.test
 import java.net.HttpURLConnection
 
 import common.{StreamLogging, WskActorSystem}
-import io.fabric8.kubernetes.api.model.{EventBuilder, PodBuilder}
+import io.fabric8.kubernetes.api.model.{EventListBuilder, PodBuilder}
 import io.fabric8.kubernetes.client.utils.HttpClientUtils.createHttpClientForMockServer
 import io.fabric8.kubernetes.client.{ConfigBuilder, DefaultKubernetesClient}
 import okhttp3.TlsVersion.TLS_1_0
@@ -87,14 +87,17 @@ class Fabric8ClientTests
       .get()
       .withPath("/api/v1/namespaces/test/pods/failWait")
       .andReturn(HttpURLConnection.HTTP_OK, new PodBuilder().withNewMetadata().withName(podName).endMetadata().build())
-      .times(3)
+      // Readiness, image-pull and command-error checks each read the pod on
+      // every polling iteration. Keep it present until the deadline instead
+      // of turning the fixture into a 404 after the first three GETs.
+      .always()
     server
       .expect()
       .get()
       .withPath("/api/v1/namespaces/test/events?fieldSelector=involvedObject.name%3DfailWait")
       .andReturn(
         HttpURLConnection.HTTP_OK,
-        new EventBuilder().withNewMetadata().withName(podName).endMetadata().build())
+        new EventListBuilder().build())
       .once
 
     implicit val patienceConfig = PatienceConfig(timeout = runTimeout + 1.seconds, interval = 0.5.seconds)

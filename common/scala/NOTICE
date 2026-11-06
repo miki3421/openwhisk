@@ -1,0 +1,125 @@
+Apache OpenServerless (Incubating)
+Copyright 2024-2026 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+This distribution is a convenience binary (container image) built from
+Apache OpenWhisk with the OpenServerless patches applied, and bundles a
+number of third-party components. See the LICENSE file for the full list of
+bundled subcomponents and their license terms.
+
+---
+
+This product bundles Apache OpenWhisk.
+
+Apache OpenWhisk
+Copyright 2016-2026 The Apache Software Foundation
+
+The Apache OpenWhisk code was originally created, designed and developed
+(under an IBM copyright dated 2015-2016) and donated to The Apache Software
+Foundation by the IBM Corporation (https://www.ibm.com/).
+
+---
+
+This product bundles the Apache OpenWhisk CLI (wsk).
+
+Apache OpenWhisk CLI
+Copyright 2016-2020 The Apache Software Foundation
+
+---
+
+This product bundles code in
+common/scala/src/main/scala/org/apache/openwhisk/core/database/ConcurrentMapBackedCache.scala
+which was derived from spray-caching, released under an Apache 2.0 license.
+
+spray
+Copyright (C) 2011-2015 the spray project (http://spray.io)
+
+---
+
+This product bundles Apache Kafka client libraries.
+
+Apache Kafka
+Copyright 2012-2020 The Apache Software Foundation
+
+---
+
+This product bundles Apache ZooKeeper and Apache Curator.
+
+Apache ZooKeeper
+Copyright 2009-2018 The Apache Software Foundation
+
+Apache Curator
+Copyright 2011-2018 The Apache Software Foundation
+
+---
+
+This product bundles Apache HttpComponents Client.
+
+Apache HttpComponents Client
+Copyright 1999-2018 The Apache Software Foundation
+
+---
+
+This product bundles Apache Commons Codec, Apache Commons IO and
+Apache Commons Collections.
+
+Apache Commons Codec
+Copyright 2002-2014 The Apache Software Foundation
+
+Apache Commons IO
+Copyright 2002-2018 The Apache Software Foundation
+
+Apache Commons Collections
+Copyright 2001-2015 The Apache Software Foundation
+
+---
+
+This product bundles Akka and Akka HTTP, which were released under an
+Apache 2.0 license.
+
+Akka
+Copyright (C) 2009-2021 Lightbend Inc. (https://www.lightbend.com)
+
+---
+
+This product bundles the Scala standard library, which was released under
+an Apache 2.0 license.
+
+Scala
+Copyright (c) 2002-2020 EPFL
+Copyright (c) 2011-2020 Lightbend, Inc.
+
+Scala includes software developed at LAMP/EPFL (https://lamp.epfl.ch/) and
+Lightbend, Inc. (https://www.lightbend.com/).
+
+---
+
+This product bundles the Docker CLI and runc static binaries, which were
+released under an Apache 2.0 license.
+
+Docker
+Copyright 2012-2018 Docker, Inc.
+
+This product includes software developed at Docker, Inc.
+(https://www.docker.com).
+
+runc
+Copyright 2012-2015 Docker, Inc.
+
+---
+
+This product bundles a Java runtime environment (Eclipse Temurin OpenJDK
+11.0.17+8), which is released under the GNU General Public License,
+version 2, with the Classpath Exception. The corresponding source code is
+available from https://github.com/adoptium/jdk11u. See the LICENSE file for
+details.
+
+---
+
+This product bundles Swagger UI, which was released under an Apache 2.0
+license.
+
+Swagger UI
+Copyright 2020 SmartBear Software (https://swagger.io/)

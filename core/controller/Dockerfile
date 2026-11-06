@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-FROM scala
+ARG BASE=scala
+FROM $BASE
 
 ENV UID=1001 \
     NOT_ROOT_USER=owuser
@@ -30,11 +31,11 @@ ENV SWAGGER_UI_DOWNLOAD_SHA256=3d7ef5ddc59e10f132fe99771498f0f1ba7a2cbfb9585f986
 # If this cannot be guaranteed, set `invoker_use_runc: false` in the ansible env.
 ENV DOCKER_VERSION=18.06.3-ce
 
-RUN apk add --update openssl
+#RUN apk add --update openssl
 
 # Uncomment to fetch latest version of docker instead: RUN wget -qO- https://get.docker.com | sh
 # Install docker client
-RUN curl -sSL -o docker-${DOCKER_VERSION}.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+RUN curl -sSL -o docker-${DOCKER_VERSION}.tgz https://download.docker.com/linux/static/stable/$(arch)/docker-${DOCKER_VERSION}.tgz && \
     tar --strip-components 1 -xvzf docker-${DOCKER_VERSION}.tgz -C /usr/bin docker/docker && \
     tar --strip-components 1 -xvzf docker-${DOCKER_VERSION}.tgz -C /usr/bin docker/docker-runc && \
     rm -f docker-${DOCKER_VERSION}.tgz && \
@@ -43,12 +44,12 @@ RUN curl -sSL -o docker-${DOCKER_VERSION}.tgz https://download.docker.com/linux/
 ##################################################################################################
 
 # Install swagger-ui
-RUN curl -sSL -o swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz --no-verbose https://github.com/swagger-api/swagger-ui/archive/v${SWAGGER_UI_VERSION}.tar.gz && \
-    echo "${SWAGGER_UI_DOWNLOAD_SHA256}  swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz" | sha256sum -c - && \
-    mkdir swagger-ui && \
-    tar zxf swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz -C /swagger-ui --strip-components=2 swagger-ui-${SWAGGER_UI_VERSION}/dist && \
-    rm swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz && \
-    sed -i s#http://petstore.swagger.io/v2/swagger.json#/api/v1/api-docs#g /swagger-ui/index.html
+#RUN curl -sSL -o swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz --no-verbose https://github.com/swagger-api/swagger-ui/archive/v${SWAGGER_UI_VERSION}.tar.gz && \
+#    echo "${SWAGGER_UI_DOWNLOAD_SHA256}  swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz" | sha256sum -c - && \
+#    mkdir swagger-ui && \
+#    tar zxf swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz -C /swagger-ui --strip-components=2 swagger-ui-${SWAGGER_UI_VERSION}/dist && \
+#    rm swagger-ui-v${SWAGGER_UI_VERSION}.tar.gz && \
+#    sed -i s#http://petstore.swagger.io/v2/swagger.json#/api/v1/api-docs#g /swagger-ui/index.html
 
 # Copy app jars
 ADD build/distributions/controller.tar /
@@ -56,7 +57,8 @@ ADD build/distributions/controller.tar /
 COPY init.sh /
 RUN chmod +x init.sh
 
-RUN adduser -D -u ${UID} -h /home/${NOT_ROOT_USER} -s /bin/bash ${NOT_ROOT_USER}
+#RUN adduser -D -u ${UID} -h /home/${NOT_ROOT_USER} -s /bin/bash ${NOT_ROOT_USER}
+RUN useradd -m -u ${UID} -d /home/${NOT_ROOT_USER} -s /bin/bash ${NOT_ROOT_USER}
 
 # It is possible to run as non root if you dont need invoker capabilities out of the controller today
 # When running it as a non-root user this has implications on the standard directory where runc stores its data.
