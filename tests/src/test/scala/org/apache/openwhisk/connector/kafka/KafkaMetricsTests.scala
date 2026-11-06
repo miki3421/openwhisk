@@ -21,6 +21,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import org.apache.kafka.common.MetricName
 import org.apache.kafka.common.metrics.{KafkaMetric, Measurable, MetricConfig}
+import org.apache.kafka.common.metrics.stats.{CumulativeSum, WindowedSum}
 import org.apache.kafka.common.utils.Time
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -34,6 +35,28 @@ import scala.concurrent.Future
 @RunWith(classOf[JUnitRunner])
 class KafkaMetricsTests extends FlatSpec with Matchers with ScalatestRouteTest {
   behavior of "KafkaMetrics"
+
+  it should "retain cumulative counter values across sampling windows" in {
+    val config = new MetricConfig().timeWindow(1, java.util.concurrent.TimeUnit.MILLISECONDS)
+    val total = new CumulativeSum()
+    val name = new MetricName("bytes-consumed-total", "consumer-fetch-manager-metrics", "", Map.empty[String, String].asJava)
+    val metric = new KafkaMetric(this, name, total, config, Time.SYSTEM)
+
+    total.record(config, 7, 0)
+    total.record(config, 11, 1000)
+    total.measure(config, 2000) shouldBe 18.0
+    KamonMetricsReporter.isCounterMetric(metric) shouldBe true
+  }
+
+  it should "keep windowed sums and ordinary measurements as gauges" in {
+    val config = new MetricConfig()
+    val name = new MetricName("bytes-window", "consumer-fetch-manager-metrics", "", Map.empty[String, String].asJava)
+    val ordinary: Measurable = (_: MetricConfig, _: Long) => 42
+    Seq[Measurable](new WindowedSum(), ordinary).foreach { provider =>
+      val metric = new KafkaMetric(this, name, provider, config, Time.SYSTEM)
+      KamonMetricsReporter.isCounterMetric(metric) shouldBe false
+    }
+  }
 
   it should "render metrics as json" in {
     val metricName = new MetricName(
